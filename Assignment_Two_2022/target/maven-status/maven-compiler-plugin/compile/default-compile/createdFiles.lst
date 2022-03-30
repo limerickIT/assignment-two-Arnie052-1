@@ -1,5 +1,6 @@
 com\sd4\repository\BeerRepository.class
 com\sd4\model\Brewery.class
+com\sd4\service\BeerService.class
 com\sd4\model\Category.class
 com\sd4\exception\BeerNotFoundException.class
 com\sd4\model\Breweries_Geocode.class
@@ -10,4 +11,3 @@ com\sd4\application\AssignmentTwo2022Application.class
 com\sd4\service\IService.class
 com\sd4\model\Beer.class
 com\sd4\application\ServletInitializer.class
-com\sd4\service\BookService.class

@@ -6,16 +6,20 @@
 package com.sd4.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-
 
 /**
  *
  * @author arnie
  */
 public interface IService<T> {
-    
+
     Collection<T> findAll();
-    
+
     Optional<T> findById(long id);
+
+    T saveOrUpdate(T t);
+
+    String deleteById(long id);
 }
