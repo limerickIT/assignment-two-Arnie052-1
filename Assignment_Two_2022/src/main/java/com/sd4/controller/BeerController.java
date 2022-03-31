@@ -12,22 +12,16 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.sd4.model.Beer;
-import com.sd4.service.IService;
-import com.sd4.utils.MethodUtils;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.sd4.model.BeerDto;
+import com.sd4.model.BeerResponse;
+import com.sd4.service.DownloadZipServiceImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import static org.hibernate.annotations.common.util.impl.LoggerFactory.logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -35,8 +29,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import com.sd4.service.BeerService;
+import com.sd4.utils.AppConstants;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -46,73 +43,52 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RequestMapping("/beer")
 public class BeerController implements BeerRepository<Beer> {
 
+    
+    
     @Autowired
-    private IService<Beer> beerService;
-
-    // Beer API Functions -----------------------------------------------
-    @GetMapping(path = "/downloads/large-files/{sampleId}")
-    public ResponseEntity<StreamingResponseBody> downloadZip(HttpServletResponse response,
-            @PathVariable(name = "sampleId") String sampleId) {
-
-        //logger.info("download request for sampleId = {}", sampleId);
-        // list of file paths for download
-        List<String> paths = Arrays.asList("/home/Videos/part1.mp4",
-                "/home/Videos/part2.mp4",
-                "/home/Videos/part3.mp4",
-                "/home/Videos/part4.pp4");
-
-        int BUFFER_SIZE = 1024;
-
-        StreamingResponseBody streamResponseBody = out -> {
-
-            final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-            ZipEntry zipEntry = null;
-            InputStream inputStream = null;
-
-            try {
-                for (String path : paths) {
-                    File file = new File(path);
-                    zipEntry = new ZipEntry(file.getName());
-
-                    inputStream = new FileInputStream(file);
-
-                    zipOutputStream.putNextEntry(zipEntry);
-                    byte[] bytes = new byte[BUFFER_SIZE];
-                    int length;
-                    while ((length = inputStream.read(bytes)) >= 0) {
-                        zipOutputStream.write(bytes, 0, length);
-                    }
-
-                }
-                // set zip size in response
-                response.setContentLength((int) (zipEntry != null ? zipEntry.getSize() : 0));
-            } catch (IOException e) {
-                //logger.error("Exception while reading and streaming data {} ", e);
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (zipOutputStream != null) {
-                    zipOutputStream.close();
-                }
-            }
-
-        };
-
-        response.setContentType("application/zip");
-        response.setHeader("Content-Disposition", "attachment; filename=example.zip");
-        response.addHeader("Pragma", "no-cache");
-        response.addHeader("Expires", "0");
-
-        return ResponseEntity.ok(streamResponseBody);
+    private BeerService<Beer> beerService;
+    
+    
+     // create blog post rest api
+    @PostMapping
+    public ResponseEntity<BeerDto> createBeer(@RequestBody BeerDto beerDto){
+        return new ResponseEntity<>(beerService.createBeer(beerDto), HttpStatus.CREATED);
     }
 
+    // get all posts rest api
+    @GetMapping("/pagination")
+    public BeerResponse getAllBeer(
+            @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ){
+        return beerService.getAllBeer(pageNo, pageSize, sortBy, sortDir);
+    }
+
+    @GetMapping("/zip")
+    public void DownloadZipFile(HttpServletResponse response) {
+        // list of file paths for download
+        List<String> listOfFileNames = new ArrayList<>();
+        
+        listOfFileNames.add("/src/main/resources/static.assets.images.large/1.jpg");
+        listOfFileNames.add("/src/main/resources/static.assets.images.large/2.jpg");
+        listOfFileNames.add("/src/main/resources/static.assets.images.large/3.jpg");
+        listOfFileNames.add("/src/main/resources/static.assets.images.large/4.jpg");
+        listOfFileNames.add("/src/main/resources/static.assets.images.large/noimage.jpg");
+   
+        
+        DownloadZipServiceImpl.downloadZipFile(response, listOfFileNames);
+    }
+
+// Beer API Functions -----------------------------------------------
     @Override
     public ResponseEntity<Collection<Beer>> findAll() {
         Collection<Beer> beers = beerService.findAll();
         List<Beer> response = new ArrayList<>();
         beers.forEach(beer -> {
-            beer.add(linkTo(methodOn(BeerController.class).findById(beer.getId())).withSelfRel());
+            beer.add(linkTo(methodOn(BeerController.class
+            ).findById(beer.getId())).withSelfRel());
             response.add(beer);
         });
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -127,7 +103,8 @@ public class BeerController implements BeerRepository<Beer> {
             throw new BeerNotFoundException("Beer not found");
         } else {
             beerObject = beer.get();
-            beerObject.add(linkTo(methodOn(BeerController.class).findAll()).withSelfRel());
+            beerObject.add(linkTo(methodOn(BeerController.class
+            ).findAll()).withSelfRel());
         }
         return new ResponseEntity<>(beerObject, HttpStatus.OK);
     }
@@ -141,8 +118,10 @@ public class BeerController implements BeerRepository<Beer> {
             throw new ApplicationException("Beer ID found, ID is not required for save the data");
         } else {
             Beer savedBeer = beerService.saveOrUpdate(beer);
-            savedBeer.add(linkTo(methodOn(BeerController.class).findById(savedBeer.getId())).withSelfRel());
-            savedBeer.add(linkTo(methodOn(BeerController.class).findAll()).withSelfRel());
+            savedBeer.add(linkTo(methodOn(BeerController.class
+            ).findById(savedBeer.getId())).withSelfRel());
+            savedBeer.add(linkTo(methodOn(BeerController.class
+            ).findAll()).withSelfRel());
             return new ResponseEntity<>(savedBeer, HttpStatus.CREATED);
         }
     }
@@ -154,10 +133,12 @@ public class BeerController implements BeerRepository<Beer> {
         if (beerTemp.isPresent()) {
             throw new ApplicationException("Book ID not found, ID is required for update the data");
         } else {
-            Beer updatedBook = beerService.saveOrUpdate(beer);
-            updatedBook.add(linkTo(methodOn(BeerController.class).findById(updatedBook.getId())).withSelfRel());
-            updatedBook.add(linkTo(methodOn(BeerController.class).findAll()).withSelfRel());
-            return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+            Beer updatedBeer = beerService.saveOrUpdate(beer);
+            updatedBeer.add(linkTo(methodOn(BeerController.class
+            ).findById(updatedBeer.getId())).withSelfRel());
+            updatedBeer.add(linkTo(methodOn(BeerController.class
+            ).findAll()).withSelfRel());
+            return new ResponseEntity<>(updatedBeer, HttpStatus.OK);
         }
     }
 

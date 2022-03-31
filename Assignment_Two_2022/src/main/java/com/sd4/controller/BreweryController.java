@@ -10,7 +10,6 @@ import com.sd4.exception.BeerNotFoundException;
 import com.sd4.exception.BreweryNotFoundException;
 import com.sd4.model.Beer;
 import com.sd4.model.Brewery;
-import com.sd4.service.IService;
 import com.sd4.utils.MethodUtils;
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +31,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.sd4.service.BeerService;
+import com.sd4.service.BreweryService;
 
 /**
  *
@@ -42,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BreweryController implements BreweryRepository<Brewery> {
 
     @Autowired
-    private IService<Brewery> breweryService;
+    private BreweryService<Brewery> breweryService;
 
     //private final String imagePath = "./src/main/resources/qrcodes/QRCode3.png";
     @RequestMapping(value = "/generateImageQRCode/{id}", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
@@ -121,4 +122,6 @@ public class BreweryController implements BreweryRepository<Brewery> {
         }
         return new ResponseEntity<>(breweryObject, HttpStatus.OK);
     }
+    
+    
 }

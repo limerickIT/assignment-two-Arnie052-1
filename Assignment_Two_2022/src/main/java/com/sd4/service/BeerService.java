@@ -6,49 +6,27 @@
 package com.sd4.service;
 
 import com.sd4.model.Beer;
-import com.sd4.repository.BeerRepository;
+import com.sd4.model.BeerDto;
+import com.sd4.model.BeerResponse;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-
-import net.minidev.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  *
  * @author arnie
  */
-@Service
-public class BeerService implements IService<Beer> {
+public interface BeerService<T> {
 
-    @Autowired
-    private BeerRepository beerRepository;
+    Collection<T> findAll();
 
-    @Override
-    public Collection<Beer> findAll() {
-        return beerRepository.findAll();
-    }
+    Optional<T> findById(long id);
 
-    @Override
-    public Optional<Beer> findById(long id) {
-        return beerRepository.findById(id);
-    }
+    T saveOrUpdate(T t);
 
-    @Override
-    public Beer saveOrUpdate(Beer book) {
-        return beerRepository.saveAndFlush(book);
-    }
-
-    @Override
-    public String deleteById(long id) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            beerRepository.deleteById(id);
-            jsonObject.put("message", "Beer deleted successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return jsonObject.toString();
-    }
-
+    String deleteById(long id);
+    
+    BeerDto createBeer (BeerDto beerDto);
+    
+    BeerResponse getAllBeer(int pageNo, int pageSize, String sortBy, String sortDir);
 }

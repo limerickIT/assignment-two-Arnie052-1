@@ -32,12 +32,22 @@
         </dependency>
         <!-- Thanks for using https://jar-download.com -->
 
+
+        
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-            <type>jar</type>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <!-- <scope>provided</scope> -->
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+            <!-- <scope>provided</scope> -->
+        </dependency>
+     
         <dependency>
             <groupId>net.glxn.qrgen</groupId>
             <artifactId>core</artifactId>
