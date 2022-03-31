@@ -27,12 +27,12 @@ import lombok.ToString;
 @ToString
 @Entity
 public class Breweries_Geocode implements Serializable {
-    
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   long id ;
-   long brewery_id;
-   Double latitude;
-   Double longitude;
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    long id;
+    long brewery_id;
+    Double latitude;
+    Double longitude;
+
 }

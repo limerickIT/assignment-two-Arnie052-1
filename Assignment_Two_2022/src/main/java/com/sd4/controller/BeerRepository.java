@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  *
  * @author arnie
  */
-public interface BeerControllerInterface<T> {
+public interface BeerRepository<T> {
 
     @GetMapping
     ResponseEntity<Collection<T>> findAll();
@@ -34,7 +34,8 @@ public interface BeerControllerInterface<T> {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<T> update(@RequestBody T t);
-      @DeleteMapping("{id}")
+
+    @DeleteMapping("{id}")
     ResponseEntity<String> deleteById(@PathVariable long id);
 
 }

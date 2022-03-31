@@ -9,9 +9,9 @@ package com.sd4.exception;
  *
  * @author arnie
  */
-public class BeerNotFoundException  extends RuntimeException
-{
+public class BeerNotFoundException extends RuntimeException {
+
     public BeerNotFoundException(String message) {
-		super(message);
-	}
+        super(message);
+    }
 }

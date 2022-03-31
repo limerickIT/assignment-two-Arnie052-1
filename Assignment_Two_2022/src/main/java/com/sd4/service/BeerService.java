@@ -44,7 +44,7 @@ public class BeerService implements IService<Beer> {
         JSONObject jsonObject = new JSONObject();
         try {
             beerRepository.deleteById(id);
-            jsonObject.put("message", "Book deleted successfully");
+            jsonObject.put("message", "Beer deleted successfully");
         } catch (Exception e) {
             e.printStackTrace();
         }

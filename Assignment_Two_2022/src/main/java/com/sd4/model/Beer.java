@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import org.springframework.hateoas.RepresentationModel;
@@ -31,7 +30,7 @@ import org.springframework.hateoas.RepresentationModel;
 @Setter
 @NoArgsConstructor
 
-public class Beer extends RepresentationModel<Beer> implements Serializable{
+public class Beer extends RepresentationModel<Beer> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,9 +42,8 @@ public class Beer extends RepresentationModel<Beer> implements Serializable{
     private Double abv;
     private Double ibu;
     private Double srm;
-    
-   
-    @Lob 
+
+    @Lob
     private String description;
     private Integer add_user;
 
@@ -56,12 +54,11 @@ public class Beer extends RepresentationModel<Beer> implements Serializable{
     private Double buy_price;
     private Double sell_price;
 
-    
     @JsonCreator
-    public Beer(@JsonProperty("id") long id, @JsonProperty("brewery_id")long brewery_id, 
-            @JsonProperty("name") String name,@JsonProperty("cat_id") Integer cat_id, @JsonProperty("style_id ") Integer style_id, 
-            @JsonProperty("abv") Double abv,@JsonProperty("ibu") Double ibu,@JsonProperty("srm") Double srm, @JsonProperty("description") String description, 
-            @JsonProperty("add_user") Integer add_user,@JsonProperty("last_mod") Date last_mod,@JsonProperty("image") String image, 
+    public Beer(@JsonProperty("id") long id, @JsonProperty("brewery_id") long brewery_id,
+            @JsonProperty("name") String name, @JsonProperty("cat_id") Integer cat_id, @JsonProperty("style_id ") Integer style_id,
+            @JsonProperty("abv") Double abv, @JsonProperty("ibu") Double ibu, @JsonProperty("srm") Double srm, @JsonProperty("description") String description,
+            @JsonProperty("add_user") Integer add_user, @JsonProperty("last_mod") Date last_mod, @JsonProperty("image") String image,
             @JsonProperty("buy_price") Double buy_price, @JsonProperty("sell_price") Double sell_price) {
         this.id = id;
         this.brewery_id = brewery_id;
@@ -78,7 +75,7 @@ public class Beer extends RepresentationModel<Beer> implements Serializable{
         this.buy_price = buy_price;
         this.sell_price = sell_price;
     }
-    
+
     public Beer(long brewery_id, String name, Integer cat_id, Integer style_id, Double abv, Double ibu, Double srm, String description, Integer add_user, Date last_mod, String image, Double buy_price, Double sell_price) {
         this.brewery_id = brewery_id;
         this.name = name;
@@ -94,18 +91,5 @@ public class Beer extends RepresentationModel<Beer> implements Serializable{
         this.buy_price = buy_price;
         this.sell_price = sell_price;
     }
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
 }
