@@ -8,3 +8,5 @@ Finished GET,POST,PUT,DELETE
 
 #31/03/2022
 Finished Map by brewery id and QR code
+Finished Pagination and Sorting
+Have code for Zip images but not fully working
