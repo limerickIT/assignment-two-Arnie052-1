@@ -31,6 +31,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.sd4.service.BeerService;
 import com.sd4.utils.AppConstants;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import static java.lang.System.in;
+import java.util.zip.ZipOutputStream;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,45 +55,72 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/beer")
 public class BeerController implements BeerRepository<Beer> {
 
-    
-    
     @Autowired
     private BeerService<Beer> beerService;
-    
-    
-     // create blog post rest api
+
+    // Create blog post rest api
     @PostMapping
-    public ResponseEntity<BeerDto> createBeer(@RequestBody BeerDto beerDto){
+    public ResponseEntity<BeerDto> createBeer(@RequestBody BeerDto beerDto) {
         return new ResponseEntity<>(beerService.createBeer(beerDto), HttpStatus.CREATED);
     }
 
-    // get all posts rest api
+    // Get all posts rest api
     @GetMapping("/pagination")
     public BeerResponse getAllBeer(
             @RequestParam(value = "pageNo", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir
-    ){
+    ) {
         return beerService.getAllBeer(pageNo, pageSize, sortBy, sortDir);
     }
 
-    @GetMapping("/zip")
-    public void DownloadZipFile(HttpServletResponse response) {
-        // list of file paths for download
-        List<String> listOfFileNames = new ArrayList<>();
-        
-        listOfFileNames.add("/src/main/resources/static.assets.images.large/1.jpg");
-        listOfFileNames.add("/src/main/resources/static.assets.images.large/2.jpg");
-        listOfFileNames.add("/src/main/resources/static.assets.images.large/3.jpg");
-        listOfFileNames.add("/src/main/resources/static.assets.images.large/4.jpg");
-        listOfFileNames.add("/src/main/resources/static.assets.images.large/noimage.jpg");
-   
-        
-        DownloadZipServiceImpl.downloadZipFile(response, listOfFileNames);
+    // Zip Beer images
+    @GetMapping(value = "/beerImages", produces = "application/zip")
+    public void zipImageDownload(HttpServletResponse response) throws IOException {
+        ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream());
+        Resource resource = new ClassPathResource("static/assets/images/");
+        InputStream input = resource.getInputStream();
+        File fileToZip = resource.getFile();
+
+        FileOutputStream fileOutStream = new FileOutputStream("ZipBeerImages.zip");
+
+        DownloadZipServiceImpl.compressFile(fileToZip, fileToZip.getName(), zipOut);
+        zipOut.close();
+        fileOutStream.close();
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"beerImages\"");
+
     }
 
-// Beer API Functions -----------------------------------------------
+    // View large or thumbnail beer images
+    @GetMapping(value = "/getImage/{id}/{size}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getImageWithMediaType(@PathVariable long id, @PathVariable String size) throws IOException {
+        Beer beerObject = null;
+        try {
+            Optional<Beer> beer = beerService.findById(id);
+            beerObject = beer.get();
+        } catch (Exception e) {
+            throw new BeerNotFoundException("No beer found");
+        }
+
+        String imagepath = "";
+        if (id < 5) {
+            if (size.contains("thumbs")) {
+                imagepath = "/static/assets/images/thumbs/" + beerObject.getImage();
+            } else {
+                imagepath = "/static/assets/images/large/" + beerObject.getImage();
+            }
+        } else {
+            imagepath = "/static/assets/images/large/noimage.jpg";
+        }
+
+        InputStream input = getClass().getResourceAsStream(imagepath);
+        return IOUtils.toByteArray(input);
+
+    }
+
+    // Beer API CRUD Functions -----------------------------------------------------
     @Override
     public ResponseEntity<Collection<Beer>> findAll() {
         Collection<Beer> beers = beerService.findAll();
@@ -144,8 +183,8 @@ public class BeerController implements BeerRepository<Beer> {
 
     @Override
     public ResponseEntity<String> deleteById(long id) {
-        Optional<Beer> book = beerService.findById(id);
-        if (!book.isPresent()) {
+        Optional<Beer> beer = beerService.findById(id);
+        if (!beer.isPresent()) {
             throw new BeerNotFoundException("Book not found");
         }
         return new ResponseEntity<>(beerService.deleteById(id), HttpStatus.OK);

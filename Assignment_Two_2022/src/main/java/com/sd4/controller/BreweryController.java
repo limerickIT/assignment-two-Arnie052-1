@@ -122,6 +122,5 @@ public class BreweryController implements BreweryRepository<Brewery> {
         }
         return new ResponseEntity<>(breweryObject, HttpStatus.OK);
     }
-    
-    
+
 }

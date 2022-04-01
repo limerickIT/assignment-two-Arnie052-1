@@ -32,10 +32,10 @@ public interface BeerRepository<T> {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<T> save(@RequestBody T t);
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value ="update/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<T> update(@RequestBody T t);
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("delete/{id}")
     ResponseEntity<String> deleteById(@PathVariable long id);
-
+    
 }

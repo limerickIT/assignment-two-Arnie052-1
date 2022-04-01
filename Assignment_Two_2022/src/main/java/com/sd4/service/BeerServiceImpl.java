@@ -82,6 +82,7 @@ public class BeerServiceImpl implements BeerService<Beer> {
 
         Page<Beer> beers = beerRepository.findAll(pageable);
 
+        
         // get content for page object
         List<Beer> listOfBeers = beers.getContent();
 
